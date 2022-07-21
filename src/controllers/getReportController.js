@@ -1,5 +1,5 @@
-
-import { get } from "./getEdiLogController.js";
+import { EdiLog } from "../models/EdiLog.js";
+import generateResponse from "../helpers/genResponse.js";
 
 
 export async function getReport (req,res){
@@ -53,4 +53,33 @@ export async function getReport (req,res){
 
 		res.send(JSON.stringify(obj));		
 	});
+}
+
+
+
+async function get (req,res){
+	
+	console.log(req);
+	const { ediLog } = req.body;
+	const query = { EdiLog : ediLog };
+    var response = null;
+    try {
+        const data= await EdiLog.find(req.body);
+
+		if (data.length > 0) {
+			response = generateResponse(true, "found successfully", data);
+		}
+		else if (data.length === 0) {
+			response = generateResponse(true, "No Edilog found", null);
+		}
+	
+}
+catch(err){
+    var response = generateResponse(false,"there occured some error : "+err,null);
+			res.status(500).send(response);
+
+}
+
+	res.status(200).send(response);
+
 }

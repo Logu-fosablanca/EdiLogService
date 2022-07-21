@@ -14,19 +14,19 @@ export async  function getMaxVersion (params,res){
         const data = await  EdiLog.find(params).sort('-FileVersion')
 
 		if( data.length > 0 ){
-			response = generateResponse(true,"found successfully");
-			// callback(response,ediLog);
+			response = generateResponse(true,"found successfully",data);
+		
 		}
 		else if( ediLog==undefined||data.length === 0){
-			response = generateResponse(true,"No EdiLog found");
-			// callback(response,null);
+			response = generateResponse(true,"No EdiLog found",null);
+		
 		}
     }
  catch(err){
 	
-			response = generateResponse(false,"there occured some error : "+err);
+			response = generateResponse(false,"there occured some error : "+err,null);
 			res.status(500).send(response);
-			// callback(response,null);
+			
 		}
         res.status(200).send(response);
     

@@ -1,11 +1,11 @@
 
 
-import { get } from "./getEdiLogController.js";
+import { EdiLog } from "../models/EdiLog.js";
+import generateResponse from "../helpers/genResponse.js";
 
 export async function getEdiGuideLog (req,res){
 
-	var params=req.body;
-
+	let params=req.body;
 	//Stripping spaces
 	params.version=params.version.replace(' ',"[\\s]*");
 	// params.user=req.session.user.replace(' ','');
@@ -13,10 +13,10 @@ export async function getEdiGuideLog (req,res){
 	// params.transactionSet=params.transactionSet.replace(' ','');
 
 	console.log('filters');
-	var filterFrom=new Date(params.from);
+	let filterFrom=new Date(params.from);
 	console.log(filterFrom);
 	filterFrom=filterFrom.getTime()+(24 * 60 * 60 * 1000);
-	var filterTo=new Date(params.to);
+	let filterTo=new Date(params.to);
 	console.log(filterTo);
 	filterTo=filterTo.getTime()+(24 * 60 * 60 * 1000);
 
@@ -43,15 +43,15 @@ export async function getEdiGuideLog (req,res){
 					"Version" : new RegExp(params.version,"i"),
 					"Timestamp" : { $gt : filterFrom, $lt : filterTo }		
 				};	
-			// }
+			
 
 			console.log(query);
 
-			get(query,function(msg,data){
-				var obj=JSON.parse(msg);
-				obj.data=data;
+			let msg= await get(query,res);
+				let obj=JSON.parse(msg);
+				// obj.data=data;
 				res.send(JSON.stringify(obj));
-			});
+			
 		}
 		else
 		{
@@ -61,4 +61,32 @@ export async function getEdiGuideLog (req,res){
 	else{
 		res.send({status:false,message:'Unauthorised'});
 	}
+}
+
+
+async function get (req,res){
+	
+	console.log(req);
+	const { ediLog } = req.body;
+	const query = { EdiLog : ediLog };
+    var response = null;
+    try {
+        const data= await EdiLog.find(req.body);
+
+		if (data.length > 0) {
+			response = generateResponse(true, "found successfully", data);
+		}
+		else if (data.length === 0) {
+			response = generateResponse(true, "No Edilog found", null);
+		}
+	
+}
+catch(err){
+    var response = generateResponse(false,"there occured some error : "+err,null);
+			res.status(500).send(response);
+
+}
+
+	res.status(200).send(response);
+
 }
